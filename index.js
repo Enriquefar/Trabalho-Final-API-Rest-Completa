@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const SECRET = "segredo_super_secreto";
+const SECRET = process.env.SECRET || "fallback_dev"; // ✅ corrigido
 
 app.use(express.json());
 
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS produtos (
 )
 `).run();
 
-// 🔹 Criar categorias padrão (se não existir)
+// 🔹 Categorias padrão
 db.prepare(`
 INSERT OR IGNORE INTO categorias (id, nome) VALUES
 (1, 'Informática'),
@@ -39,7 +39,7 @@ INSERT OR IGNORE INTO categorias (id, nome) VALUES
 
 
 // =========================
-// 🔐 LOGIN (JWT)
+// 🔐 LOGIN
 // =========================
 app.post('/login', (req, res) => {
     const { usuario, senha } = req.body;
@@ -53,7 +53,7 @@ app.post('/login', (req, res) => {
 });
 
 
-// 🔐 Middleware de autenticação
+// 🔐 Middleware
 function autenticar(req, res, next) {
     const authHeader = req.headers.authorization;
 
@@ -73,7 +73,7 @@ function autenticar(req, res, next) {
 
 
 // =========================
-// 🔹 GET com JOIN
+// 🔹 GET
 // =========================
 app.get('/api/produtos', (req, res) => {
     const produtos = db.prepare(`
@@ -103,7 +103,7 @@ app.get('/api/produtos/:id', (req, res) => {
 });
 
 
-// 🔹 POST (PROTEGIDO)
+// 🔹 POST
 app.post('/api/produtos', autenticar, (req, res) => {
     const { nome, preco, categoria_id } = req.body;
 
@@ -111,7 +111,7 @@ app.post('/api/produtos', autenticar, (req, res) => {
         return res.status(400).json({ erro: "Nome inválido" });
     }
 
-    if (preco == null || preco <= 0) {
+    if (preco == null || typeof preco !== 'number' || preco <= 0) {
         return res.status(400).json({ erro: "Preço inválido" });
     }
 
@@ -130,7 +130,7 @@ app.post('/api/produtos', autenticar, (req, res) => {
 });
 
 
-// 🔹 PUT (PROTEGIDO)
+// 🔹 PUT
 app.put('/api/produtos/:id', autenticar, (req, res) => {
     const { nome, preco, categoria_id } = req.body;
 
@@ -148,7 +148,7 @@ app.put('/api/produtos/:id', autenticar, (req, res) => {
 });
 
 
-// 🔹 DELETE (PROTEGIDO)
+// 🔹 DELETE
 app.delete('/api/produtos/:id', autenticar, (req, res) => {
     const result = db.prepare('DELETE FROM produtos WHERE id=?').run(req.params.id);
 
@@ -167,5 +167,5 @@ app.get('/', (req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`🚀 http://localhost:${PORT}`);
+    console.log(`🚀 rodando na porta ${PORT}`);
 });
