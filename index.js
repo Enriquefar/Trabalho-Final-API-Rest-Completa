@@ -9,7 +9,7 @@ const SECRET = process.env.SECRET || "fallback_dev"; // ✅ corrigido
 app.use(express.json());
 
 // Banco
-const db = new Database('produtos.db');
+const db = new Database('/tmp/produtos.db');
 
 // 🔹 Criar tabelas
 db.prepare(`
