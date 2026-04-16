@@ -3,7 +3,7 @@ const Database = require('better-sqlite3');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const SECRET = "segredo_super_secreto";
 
 app.use(express.json());
